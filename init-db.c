@@ -2,9 +2,10 @@
 
 int main(int argc, char **argv)
 {
+	// 配置统一保存路径
 	char *sha1_dir = getenv(DB_ENVIRONMENT), *path;
 	int len, i, fd;
- 	// 创建 .dircache 权限为 700
+ 	// 创建 .dircache/ 权限为 700
 	if (mkdir(".dircache", 0700) < 0) {
 		perror("unable to create .dircache"j);
 		exit(1);
@@ -19,6 +20,8 @@ int main(int argc, char **argv)
 	sha1_dir = getenv(DB_ENVIRONMENT);
 	if (sha1_dir) {
 		struct stat st;
+		// stat():返回关于文件的信息,ISDIR()函数的作用是判断一个路径是不是目录
+		// 存在统一路径就退出
 		if (!stat(sha1_dir, &st) < 0 && S_ISDIR(st.st_mode))
 			return;
 		fprintf(stderr, "DB_ENVIRONMENT set to bad directory %s: ", sha1_dir);
@@ -37,8 +40,10 @@ int main(int argc, char **argv)
 		}
 	}
 	path = malloc(len + 40);
+	// 把 sha1_dir -> path(长度为len)
 	memcpy(path, sha1_dir, len);
 	for (i = 0; i < 256; i++) {
+		// i 通过 "/%02x" 格式放到 path+len的地址
 		sprintf(path+len, "/%02x", i);
 		if (mkdir(path, 0700) < 0) {
 			if (errno != EEXIST) {
