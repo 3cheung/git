@@ -7,7 +7,7 @@ int main(int argc, char **argv)
 	int len, i, fd;
  	// 创建 .dircache/ 权限为 700
 	if (mkdir(".dircache", 0700) < 0) {
-		perror("unable to create .dircache"j);
+		perror("unable to create .dircache");
 		exit(1);
 	}
 
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 	}
-	path = malloc(len + 40);
+	path = malloc(len + 40); // 40 = 8 + 16 + 16 ：'/':8,两个16位的数
 	// 把 sha1_dir -> path(长度为len)
 	memcpy(path, sha1_dir, len);
 	for (i = 0; i < 256; i++) {
