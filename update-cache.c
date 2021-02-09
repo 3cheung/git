@@ -1,14 +1,15 @@
 #include "cache.h"
 
+// 判断前 len = len1 < len2 ? len1 : len2 是否相同
 static int cache_name_compare(const char *name1, int len1, const char *name2, int len2)
 {
 	int len = len1 < len2 ? len1 : len2;
 	int cmp;
-
+	//memcmp() 存储区 str1 和存储区 str2 的前 n 个字节进行比较
 	cmp = memcmp(name1, name2, len);
-	if (cmp)
+	if (cmp) // 不相同则返回cmp
 		return cmp;
-	if (len1 < len2)
+	if (len1 < len2) // 长度小于则返回 -1
 		return -1;
 	if (len1 > len2)
 		return 1;
@@ -53,19 +54,19 @@ static int add_cache_entry(struct cache_entry *ce)
 
 	pos = cache_name_pos(ce->name, ce->namelen);
 
-	/* existing match? Just replace it */
+	/* existing match? Just replace it */ // 存在？就代替它
 	if (pos < 0) {
 		active_cache[-pos-1] = ce;
 		return 0;
 	}
 
-	/* Make sure the array is big enough .. */
+	/* Make sure the array is big enough .. */ // 确保有足够的数组
 	if (active_nr == active_alloc) {
 		active_alloc = alloc_nr(active_alloc);
 		active_cache = realloc(active_cache, active_alloc * sizeof(struct cache_entry *));
 	}
 
-	/* Add it in.. */
+	/* Add it in.. */ // 添加
 	active_nr++;
 	if (active_nr > pos)
 		memmove(active_cache + pos + 1, active_cache + pos, (active_nr - pos - 1) * sizeof(ce));
@@ -76,8 +77,8 @@ static int add_cache_entry(struct cache_entry *ce)
 static int index_fd(const char *path, int namelen, struct cache_entry *ce, int fd, struct stat *st)
 {
 	z_stream stream;
-	int max_out_bytes = namelen + st->st_size + 200;
-	void *out = malloc(max_out_bytes);
+	int max_out_bytes = namelen + st->st_size + 200; // 路劲长度 + 文件大小 + 200
+	void *out = malloc(max_out_bytes); // 分配内存
 	void *metadata = malloc(namelen + 200);
 	void *in = mmap(NULL, st->st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	SHA_CTX c;
@@ -86,7 +87,7 @@ static int index_fd(const char *path, int namelen, struct cache_entry *ce, int f
 	if (!out || (int)(long)in == -1)
 		return -1;
 
-	memset(&stream, 0, sizeof(stream));
+	memset(&stream, 0, sizeof(stream)); // 把 &stream 开始 长度为sizeof(stream) 的内存设置为 0
 	deflateInit(&stream, Z_BEST_COMPRESSION);
 
 	/*
@@ -129,7 +130,7 @@ static int add_file_to_cache(char *path)
 			return remove_file_from_cache(path);
 		return -1;
 	}
-	if (fstat(fd, &st) < 0) {
+	if (fstat(fd, &st) < 0) { //由文件描述词取得文件状态
 		close(fd);
 		return -1;
 	}

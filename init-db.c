@@ -17,6 +17,7 @@ int main(int argc, char **argv)
 	 * On the other hand, it might just make lookup slower and messier. You
 	 * be the judge.
 	 */
+	// 获得配置的环境变量地址
 	sha1_dir = getenv(DB_ENVIRONMENT);
 	if (sha1_dir) {
 		struct stat st;
